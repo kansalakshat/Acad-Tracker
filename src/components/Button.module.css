@@ -1,1 +1,27 @@
-.button{border:1px solid #6d3026;padding:10px 17px;font:11px "Cinzel",serif;letter-spacing:1px;text-transform:uppercase}.primary{background:#873b2e;color:#f6ead3;box-shadow:3px 3px 0 #c6ae87}.primary:hover{background:#6e2f26}.secondary{background:transparent;color:#63352b;border-color:#9d7858}.danger{background:#5c2923;color:#fff0dc;border-color:#5c2923}
+.button {
+  border: 1px solid #6d3026;
+  padding: 10px 17px;
+  font:
+    11px 'Cinzel',
+    serif;
+  letter-spacing: 1px;
+  text-transform: uppercase;
+}
+.primary {
+  background: #873b2e;
+  color: #f6ead3;
+  box-shadow: 3px 3px 0 #c6ae87;
+}
+.primary:hover {
+  background: #6e2f26;
+}
+.secondary {
+  background: transparent;
+  color: #63352b;
+  border-color: #9d7858;
+}
+.danger {
+  background: #5c2923;
+  color: #fff0dc;
+  border-color: #5c2923;
+}

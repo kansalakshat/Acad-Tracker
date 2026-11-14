@@ -1,6 +1,6 @@
-@import url("https://fonts.googleapis.com/css2?family=IM+Fell+English&display=swap");
+@import url('https://fonts.googleapis.com/css2?family=IM+Fell+English&display=swap');
 :root {
-  font-family: "Crimson Pro", Georgia, serif;
+  font-family: 'Crimson Pro', Georgia, serif;
   color: #2c211c;
   background: #e9dfca;
   font-synthesis: none;
@@ -14,11 +14,28 @@
   --paper-deep: #e5d7bd;
   --line: #a99577;
   --green: #536448;
-  --shadow: rgba(43, 30, 22, .13);
+  --shadow: rgba(43, 30, 22, 0.13);
 }
-* { box-sizing: border-box; }
-body { margin: 0; min-width: 320px; background: #e9dfca; }
-button, input, select { font: inherit; }
-button { cursor: pointer; }
-a { color: inherit; }
-::selection { background: #c9a86d; color: #241a16; }
+* {
+  box-sizing: border-box;
+}
+body {
+  margin: 0;
+  min-width: 320px;
+  background: #e9dfca;
+}
+button,
+input,
+select {
+  font: inherit;
+}
+button {
+  cursor: pointer;
+}
+a {
+  color: inherit;
+}
+::selection {
+  background: #c9a86d;
+  color: #241a16;
+}

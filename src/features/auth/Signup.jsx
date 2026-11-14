@@ -1,11 +1,61 @@
-import { useState } from "react";
-import AuthFrame from "./AuthFrame";
-import Field from "../../components/Field";
-import Button from "../../components/Button";
-import styles from "./Auth.module.css";
+import { useState } from 'react';
+import AuthFrame from './AuthFrame';
+import Field from '../../components/Field';
+import Button from '../../components/Button';
+import styles from './Auth.module.css';
 
 export default function Signup({ onBack, onCreate }) {
-  const [name,setName]=useState("");const [email,setEmail]=useState("");const [password,setPassword]=useState("");const [error,setError]=useState("");
-  const submit=e=>{e.preventDefault();if(!email.toLowerCase().endsWith("@iitbhilai.ac.in")){setError("Registration is restricted to @iitbhilai.ac.in addresses.");return;}if(password.length<8){setError("Use a password with at least 8 characters.");return;}setError(onCreate({name,email,password}));};
-  return <AuthFrame title="Join the Chronicle" subtitle="A place for every scholar"><form className={styles.form} onSubmit={submit}><Field label="FULL NAME" placeholder="Your name" value={name} onChange={e=>setName(e.target.value)} required/><Field label="INSTITUTE EMAIL" type="email" placeholder="name@iitbhilai.ac.in" value={email} onChange={e=>setEmail(e.target.value)} required/><Field label="PASSWORD" type="password" placeholder="At least 8 characters" value={password} onChange={e=>setPassword(e.target.value)} required/>{error&&<p className={styles.error}>{error}</p>}<Button type="submit">Create Account</Button></form><div className={styles.switch}>Already registered? <button className={styles.textButton} onClick={onBack}>Sign in</button></div></AuthFrame>;
+  const [name, setName] = useState('');
+  const [email, setEmail] = useState('');
+  const [password, setPassword] = useState('');
+  const [error, setError] = useState('');
+  const submit = (e) => {
+    e.preventDefault();
+    if (!email.toLowerCase().endsWith('@iitbhilai.ac.in')) {
+      setError('Registration is restricted to @iitbhilai.ac.in addresses.');
+      return;
+    }
+    if (password.length < 8) {
+      setError('Use a password with at least 8 characters.');
+      return;
+    }
+    setError(onCreate({ name, email, password }));
+  };
+  return (
+    <AuthFrame title="Join the Chronicle" subtitle="A place for every scholar">
+      <form className={styles.form} onSubmit={submit}>
+        <Field
+          label="FULL NAME"
+          placeholder="Your name"
+          value={name}
+          onChange={(e) => setName(e.target.value)}
+          required
+        />
+        <Field
+          label="INSTITUTE EMAIL"
+          type="email"
+          placeholder="name@iitbhilai.ac.in"
+          value={email}
+          onChange={(e) => setEmail(e.target.value)}
+          required
+        />
+        <Field
+          label="PASSWORD"
+          type="password"
+          placeholder="At least 8 characters"
+          value={password}
+          onChange={(e) => setPassword(e.target.value)}
+          required
+        />
+        {error && <p className={styles.error}>{error}</p>}
+        <Button type="submit">Create Account</Button>
+      </form>
+      <div className={styles.switch}>
+        Already registered?{' '}
+        <button className={styles.textButton} onClick={onBack}>
+          Sign in
+        </button>
+      </div>
+    </AuthFrame>
+  );
 }

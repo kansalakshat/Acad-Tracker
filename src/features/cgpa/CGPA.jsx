@@ -1,8 +1,8 @@
-import { useMemo, useState } from "react";
-import PageHeading from "../../components/PageHeading";
-import Button from "../../components/Button";
-import { gradePoints } from "../../data";
-import styles from "./CGPA.module.css";
+import { useMemo, useState } from 'react';
+import PageHeading from '../../components/PageHeading';
+import Button from '../../components/Button';
+import { gradePoints } from '../../data';
+import styles from './CGPA.module.css';
 
 export default function CGPA({ subjects }) {
   const [rows, setRows] = useState(
@@ -10,11 +10,11 @@ export default function CGPA({ subjects }) {
       id: s.id,
       name: s.name,
       credits: s.credits,
-      grade: "A",
-    })),
+      grade: 'A',
+    }))
   );
   const [showForm, setShowForm] = useState(false);
-  const [newCount, setNewCount] = useState("");
+  const [newCount, setNewCount] = useState('');
   const result = useMemo(() => {
     let points = 0,
       credits = 0,
@@ -22,7 +22,7 @@ export default function CGPA({ subjects }) {
     rows.forEach((r) => {
       const g = gradePoints[r.grade];
       const c = Number(r.credits);
-      if (r.grade === "F") {
+      if (r.grade === 'F') {
         failed++;
         credits += c;
         return;
@@ -44,11 +44,11 @@ export default function CGPA({ subjects }) {
         id: `new-${Date.now()}-${i}`,
         name: `Subject ${r.length + i + 1}`,
         credits: 3,
-        grade: "A",
+        grade: 'A',
       })),
     ]);
     setShowForm(false);
-    setNewCount("");
+    setNewCount('');
   };
   return (
     <>
@@ -74,7 +74,7 @@ export default function CGPA({ subjects }) {
               <input
                 aria-label="Subject name"
                 value={r.name}
-                onChange={(e) => update(r.id, "name", e.target.value)}
+                onChange={(e) => update(r.id, 'name', e.target.value)}
               />
               <input
                 aria-label="Credits"
@@ -82,29 +82,23 @@ export default function CGPA({ subjects }) {
                 min="1"
                 max="10"
                 value={r.credits}
-                onChange={(e) => update(r.id, "credits", e.target.value)}
+                onChange={(e) => update(r.id, 'credits', e.target.value)}
               />
               <select
                 aria-label="Grade"
                 value={r.grade}
-                onChange={(e) => update(r.id, "grade", e.target.value)}
+                onChange={(e) => update(r.id, 'grade', e.target.value)}
               >
-                {[...Object.keys(gradePoints), "F"].map((g) => (
+                {[...Object.keys(gradePoints), 'F'].map((g) => (
                   <option key={g}>{g}</option>
                 ))}
               </select>
-              <b>{r.grade === "F" ? "—" : gradePoints[r.grade]}</b>
+              <b>{r.grade === 'F' ? '—' : gradePoints[r.grade]}</b>
             </div>
           ))}
           <div className={styles.actions}>
-            <button onClick={() => setShowForm((v) => !v)}>
-              + ADD SUBJECTS
-            </button>
-            <button
-              onClick={() =>
-                setRows(rows.filter((r) => r.id !== rows[rows.length - 1]?.id))
-              }
-            >
+            <button onClick={() => setShowForm((v) => !v)}>+ ADD SUBJECTS</button>
+            <button onClick={() => setRows(rows.filter((r) => r.id !== rows[rows.length - 1]?.id))}>
               REMOVE LAST
             </button>
           </div>
@@ -127,9 +121,7 @@ export default function CGPA({ subjects }) {
         </section>
         <aside className={styles.result}>
           <div className={styles.kicker}>YOUR CALCULATED RESULT</div>
-          <div className={styles.big}>
-            {result.cgpa === null ? "—" : result.cgpa.toFixed(2)}
-          </div>
+          <div className={styles.big}>{result.cgpa === null ? '—' : result.cgpa.toFixed(2)}</div>
           <div className={styles.caption}>SEMESTER GPA</div>
           <div className={styles.rule} />
           <div className={styles.metric}>
@@ -145,14 +137,13 @@ export default function CGPA({ subjects }) {
             <b>{result.failed}</b>
           </div>
           <p>
-            Formula: Σ (credit × grade point) ÷ Σ counted credits. Failed
-            courses are excluded from both totals.
+            Formula: Σ (credit × grade point) ÷ Σ counted credits. Failed courses are excluded from
+            both totals.
           </p>
         </aside>
       </div>
       <div className={styles.note}>
-        GRADE SCALE{" "}
-        <span>A+ 10 · A 10 · A− 9 · B 8 · B− 7 · C 6 · C− 7 · F excluded</span>
+        GRADE SCALE <span>A+ 10 · A 10 · A− 9 · B 8 · B− 7 · C 6 · C− 7 · F excluded</span>
       </div>
     </>
   );

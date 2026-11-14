@@ -12,7 +12,7 @@
 .formTitle {
   grid-column: 1/-1;
   font:
-    10px "Cinzel",
+    10px 'Cinzel',
     serif;
   letter-spacing: 1.5px;
   color: var(--brick);
@@ -21,7 +21,7 @@
   display: grid;
   gap: 6px;
   font:
-    10px "Cinzel",
+    10px 'Cinzel',
     serif;
   color: #725b45;
 }
@@ -31,7 +31,7 @@
   background: #f8f1e4;
   color: var(--ink);
   font:
-    16px "Crimson Pro",
+    16px 'Crimson Pro',
     serif;
 }
 .eventList {
@@ -52,26 +52,26 @@
 .date b {
   display: block;
   font:
-    29px "Cinzel",
+    29px 'Cinzel',
     serif;
 }
 .date span {
   font:
-    9px "Cinzel",
+    9px 'Cinzel',
     serif;
   letter-spacing: 1px;
   color: var(--muted);
 }
 .type {
   font:
-    9px "Cinzel",
+    9px 'Cinzel',
     serif;
   letter-spacing: 1.4px;
   color: var(--brick);
 }
 .details h3 {
   font:
-    17px "Cinzel",
+    17px 'Cinzel',
     serif;
   margin: 4px 0;
 }
@@ -109,7 +109,6 @@
   }
 }
 
-
 .calendarToolbar {
   display: flex;
   justify-content: flex-end;
@@ -138,7 +137,9 @@
 }
 
 .calendarHeader h3 {
-  font: 20px "Cinzel", serif;
+  font:
+    20px 'Cinzel',
+    serif;
   color: var(--ink);
   margin: 0;
 }
@@ -161,7 +162,9 @@
 
 .weekdays div {
   padding: 12px 4px;
-  font: 11px "Cinzel", serif;
+  font:
+    11px 'Cinzel',
+    serif;
   color: var(--muted);
   border-bottom: 1px solid var(--line);
 }
@@ -179,7 +182,9 @@
   background: transparent;
   color: var(--ink);
   cursor: pointer;
-  font: 15px "Crimson Pro", serif;
+  font:
+    15px 'Crimson Pro',
+    serif;
 }
 
 .calendarDay:hover {
@@ -214,7 +219,9 @@
   gap: 22px;
   padding: 17px 0;
   border-top: 1px solid var(--line);
-  font: 12px "Crimson Pro", serif;
+  font:
+    12px 'Crimson Pro',
+    serif;
   color: var(--ink);
 }
 
@@ -248,7 +255,9 @@
 }
 
 .dayDetails h3 {
-  font: 16px "Cinzel", serif;
+  font:
+    16px 'Cinzel',
+    serif;
   color: var(--brick);
   margin: 0 0 15px;
 }
@@ -260,7 +269,7 @@
   align-items: center;
   padding: 13px 8px;
   border-bottom: 1px solid var(--line);
-  font-family: "Crimson Pro", serif;
+  font-family: 'Crimson Pro', serif;
 }
 
 .classRecord span {

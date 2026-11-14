@@ -1,26 +1,24 @@
-import { useState } from "react";
-import PageHeading from "../../components/PageHeading";
-import Field from "../../components/Field";
-import Button from "../../components/Button";
-import styles from "./Planner.module.css";
+import { useState } from 'react';
+import PageHeading from '../../components/PageHeading';
+import Field from '../../components/Field';
+import Button from '../../components/Button';
+import styles from './Planner.module.css';
 
 const blank = {
-  title: "",
-  type: "Exam",
-  date: "",
-  subject: "",
+  title: '',
+  type: 'Exam',
+  date: '',
+  subject: '',
 };
 
-const today = () => new Date().toLocaleDateString("en-CA");
+const today = () => new Date().toLocaleDateString('en-CA');
 
 export default function Planner({ profile, onUpdate }) {
   const [form, setForm] = useState(blank);
   const [show, setShow] = useState(false);
 
-  const [view, setView] = useState("events");
-  const [selectedSubject, setSelectedSubject] = useState(
-    profile.subjects?.[0]?.id || "",
-  );
+  const [view, setView] = useState('events');
+  const [selectedSubject, setSelectedSubject] = useState(profile.subjects?.[0]?.id || '');
 
   const [month, setMonth] = useState(() => {
     const d = new Date();
@@ -29,9 +27,7 @@ export default function Planner({ profile, onUpdate }) {
 
   const [selectedDate, setSelectedDate] = useState(today());
 
-  const events = [...(profile.events || [])].sort((a, b) =>
-    a.date.localeCompare(b.date),
-  );
+  const events = [...(profile.events || [])].sort((a, b) => a.date.localeCompare(b.date));
 
   const attendance = profile.attendance || {};
   const timetable = profile.timetable || [];
@@ -42,10 +38,7 @@ export default function Planner({ profile, onUpdate }) {
     if (!form.title || !form.date) return;
 
     onUpdate({
-      events: [
-        ...(profile.events || []),
-        { ...form, id: `event-${Date.now()}` },
-      ],
+      events: [...(profile.events || []), { ...form, id: `event-${Date.now()}` }],
     });
 
     setForm(blank);
@@ -68,50 +61,42 @@ export default function Planner({ profile, onUpdate }) {
 
   const getDateKey = (day) => {
     const y = month.getFullYear();
-    const m = String(month.getMonth() + 1).padStart(2, "0");
-    const d = String(day).padStart(2, "0");
+    const m = String(month.getMonth() + 1).padStart(2, '0');
+    const d = String(day).padStart(2, '0');
     return `${y}-${m}-${d}`;
   };
 
   const getAttendanceStatus = (date) => {
-    const weekday = new Date(date + "T00:00:00").toLocaleDateString("en-US", {
-      weekday: "long",
+    const weekday = new Date(date + 'T00:00:00').toLocaleDateString('en-US', {
+      weekday: 'long',
     });
 
-    const classes = timetable.filter(
-      (t) => t.day === weekday && t.subjectId === selectedSubject,
-    );
+    const classes = timetable.filter((t) => t.day === weekday && t.subjectId === selectedSubject);
 
-    if (!classes.length) return "";
+    if (!classes.length) return '';
 
     const statuses = classes.map((c) => attendance[`${date}_${c.id}`]);
 
-    if (statuses.every((s) => s === "Cancelled")) return "cancelled";
+    if (statuses.every((s) => s === 'Cancelled')) return 'cancelled';
 
-    if (statuses.includes("Absent")) return "absent";
+    if (statuses.includes('Absent')) return 'absent';
 
-    if (statuses.includes("Present")) return "present";
+    if (statuses.includes('Present')) return 'present';
 
-    return "";
+    return '';
   };
 
   const getClassesForDate = (date) => {
-    const weekday = new Date(date + "T00:00:00").toLocaleDateString("en-US", {
-      weekday: "long",
+    const weekday = new Date(date + 'T00:00:00').toLocaleDateString('en-US', {
+      weekday: 'long',
     });
 
-    return timetable.filter(
-      (t) => t.day === weekday && t.subjectId === selectedSubject,
-    );
+    return timetable.filter((t) => t.day === weekday && t.subjectId === selectedSubject);
   };
 
   const selectedClasses = getClassesForDate(selectedDate);
 
-  const daysInMonth = new Date(
-    month.getFullYear(),
-    month.getMonth() + 1,
-    0,
-  ).getDate();
+  const daysInMonth = new Date(month.getFullYear(), month.getMonth() + 1, 0).getDate();
 
   const firstDay = new Date(month.getFullYear(), month.getMonth(), 1).getDay();
 
@@ -128,9 +113,7 @@ export default function Planner({ profile, onUpdate }) {
         eyebrow="DATES THAT SHAPE YOUR TERM"
         title="Course Calendar"
         description="Keep track of your academic schedule and attendance."
-        action={
-          <Button onClick={() => setShow((v) => !v)}>+ Add an event</Button>
-        }
+        action={<Button onClick={() => setShow((v) => !v)}>+ Add an event</Button>}
       />
 
       <div className={styles.calendarToolbar}>
@@ -142,13 +125,10 @@ export default function Planner({ profile, onUpdate }) {
           </select>
         </label>
 
-        {view === "attendance" && (
+        {view === 'attendance' && (
           <label className={styles.select}>
             SELECT SUBJECT
-            <select
-              value={selectedSubject}
-              onChange={(e) => setSelectedSubject(e.target.value)}
-            >
+            <select value={selectedSubject} onChange={(e) => setSelectedSubject(e.target.value)}>
               {(profile.subjects || []).map((s) => (
                 <option value={s.id} key={s.id}>
                   {s.name}
@@ -159,7 +139,7 @@ export default function Planner({ profile, onUpdate }) {
         )}
       </div>
 
-      {show && view === "events" && (
+      {show && view === 'events' && (
         <form className={styles.form} onSubmit={save}>
           <div className={styles.formTitle}>ENTER A NEW DATE</div>
 
@@ -233,19 +213,19 @@ export default function Planner({ profile, onUpdate }) {
         </form>
       )}
 
-      {view === "events" ? (
+      {view === 'events' ? (
         <div className={styles.eventList}>
           {events.length ? (
             events.map((e) => (
               <article className={styles.event} key={e.id}>
                 <div className={styles.date}>
-                  <b>{new Date(e.date + "T00:00:00").getDate()}</b>
+                  <b>{new Date(e.date + 'T00:00:00').getDate()}</b>
 
                   <span>
-                    {new Date(e.date + "T00:00:00")
-                      .toLocaleDateString("en-IN", {
-                        month: "short",
-                        year: "numeric",
+                    {new Date(e.date + 'T00:00:00')
+                      .toLocaleDateString('en-IN', {
+                        month: 'short',
+                        year: 'numeric',
                       })
                       .toUpperCase()}
                   </span>
@@ -254,7 +234,7 @@ export default function Planner({ profile, onUpdate }) {
                 <div className={styles.details}>
                   <span className={styles.type}>{e.type}</span>
                   <h3>{e.title}</h3>
-                  <p>{e.subject || "General academic event"}</p>
+                  <p>{e.subject || 'General academic event'}</p>
                 </div>
 
                 <button
@@ -278,9 +258,9 @@ export default function Planner({ profile, onUpdate }) {
             <button onClick={previousMonth}>←</button>
 
             <h3>
-              {month.toLocaleDateString("en-IN", {
-                month: "long",
-                year: "numeric",
+              {month.toLocaleDateString('en-IN', {
+                month: 'long',
+                year: 'numeric',
               })}
             </h3>
 
@@ -288,7 +268,7 @@ export default function Planner({ profile, onUpdate }) {
           </div>
 
           <div className={styles.weekdays}>
-            {["Sun", "Mon", "Tue", "Wed", "Thu", "Fri", "Sat"].map((d) => (
+            {['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat'].map((d) => (
               <div key={d}>{d}</div>
             ))}
           </div>
@@ -307,9 +287,9 @@ export default function Planner({ profile, onUpdate }) {
                   key={date}
                   className={[
                     styles.calendarDay,
-                    status ? styles[status] : "",
-                    selectedDate === date ? styles.selectedDay : "",
-                  ].join(" ")}
+                    status ? styles[status] : '',
+                    selectedDate === date ? styles.selectedDay : '',
+                  ].join(' ')}
                   onClick={() => setSelectedDate(date)}
                 >
                   {day}
@@ -332,15 +312,12 @@ export default function Planner({ profile, onUpdate }) {
 
           <div className={styles.dayDetails}>
             <h3>
-              {new Date(selectedDate + "T00:00:00").toLocaleDateString(
-                "en-IN",
-                {
-                  weekday: "long",
-                  day: "numeric",
-                  month: "long",
-                  year: "numeric",
-                },
-              )}
+              {new Date(selectedDate + 'T00:00:00').toLocaleDateString('en-IN', {
+                weekday: 'long',
+                day: 'numeric',
+                month: 'long',
+                year: 'numeric',
+              })}
             </h3>
 
             {selectedClasses.length ? (
@@ -351,14 +328,9 @@ export default function Planner({ profile, onUpdate }) {
                   <div className={styles.classRecord} key={c.id}>
                     <span>{c.time}</span>
 
-                    <strong>
-                      {
-                        profile.subjects?.find((s) => s.id === selectedSubject)
-                          ?.name
-                      }
-                    </strong>
+                    <strong>{profile.subjects?.find((s) => s.id === selectedSubject)?.name}</strong>
 
-                    <b>{status || "Not marked"}</b>
+                    <b>{status || 'Not marked'}</b>
                   </div>
                 );
               })
@@ -370,7 +342,7 @@ export default function Planner({ profile, onUpdate }) {
               <div className={styles.classRecord} key={e.id}>
                 <span>{e.type}</span>
                 <strong>{e.title}</strong>
-                <b>{e.subject || "General"}</b>
+                <b>{e.subject || 'General'}</b>
               </div>
             ))}
           </div>

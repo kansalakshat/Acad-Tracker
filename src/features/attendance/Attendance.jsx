@@ -1,13 +1,13 @@
-import { useMemo, useState } from "react";
-import PageHeading from "../../components/PageHeading";
-import Button from "../../components/Button";
-import styles from "./Attendance.module.css";
+import { useMemo, useState } from 'react';
+import PageHeading from '../../components/PageHeading';
+import Button from '../../components/Button';
+import styles from './Attendance.module.css';
 
 const today = () => {
   const now = new Date();
   const year = now.getFullYear();
-  const month = String(now.getMonth() + 1).padStart(2, "0");
-  const day = String(now.getDate()).padStart(2, "0");
+  const month = String(now.getMonth() + 1).padStart(2, '0');
+  const day = String(now.getDate()).padStart(2, '0');
 
   return `${year}-${month}-${day}`;
 };
@@ -15,21 +15,19 @@ export default function Attendance({ profile, onUpdate }) {
   const [date, setDate] = useState(today());
   const [records, setRecords] = useState(profile.attendance || {});
   const [extra, setExtra] = useState(false);
-  const [extraSubject, setExtraSubject] = useState(
-    profile.subjects?.[0]?.id || "",
-  );
-  const [extraTime, setExtraTime] = useState("16:00");
+  const [extraSubject, setExtraSubject] = useState(profile.subjects?.[0]?.id || '');
+  const [extraTime, setExtraTime] = useState('16:00');
   const classes = (profile.timetable || []).filter(
     (t) =>
       t.day ===
-      new Date(date + "T00:00:00").toLocaleDateString("en-US", {
-        weekday: "long",
-      }),
+      new Date(date + 'T00:00:00').toLocaleDateString('en-US', {
+        weekday: 'long',
+      })
   );
   const subjectName = (id) =>
     profile.subjects?.find((s) => s.id === id)?.name ||
     profile.subjects?.find((s) => s.code === id)?.name ||
-    "Subject";
+    'Subject';
   const key = (id) => `${date}_${id}`;
   const mark = (id, status) => {
     const next = { ...records, [key(id)]: status };
@@ -40,8 +38,8 @@ export default function Attendance({ profile, onUpdate }) {
     const item = {
       id: `extra-${Date.now()}`,
       subjectId: extraSubject,
-      day: new Date(date + "T00:00:00").toLocaleDateString("en-US", {
-        weekday: "long",
+      day: new Date(date + 'T00:00:00').toLocaleDateString('en-US', {
+        weekday: 'long',
       }),
       time: extraTime,
       extra: true,
@@ -53,9 +51,9 @@ export default function Attendance({ profile, onUpdate }) {
   const counts = useMemo(() => {
     const vals = Object.values(records);
     return {
-      present: vals.filter((v) => v === "Present").length,
-      absent: vals.filter((v) => v === "Absent").length,
-      cancelled: vals.filter((v) => v === "Cancelled").length,
+      present: vals.filter((v) => v === 'Present').length,
+      absent: vals.filter((v) => v === 'Absent').length,
+      cancelled: vals.filter((v) => v === 'Cancelled').length,
     };
   }, [records]);
   return (
@@ -88,10 +86,7 @@ export default function Attendance({ profile, onUpdate }) {
         <div className={styles.extra}>
           <label>
             SUBJECT
-            <select
-              value={extraSubject}
-              onChange={(e) => setExtraSubject(e.target.value)}
-            >
+            <select value={extraSubject} onChange={(e) => setExtraSubject(e.target.value)}>
               {(profile.subjects || []).map((s) => (
                 <option value={s.id} key={s.id}>
                   {s.name}
@@ -101,11 +96,7 @@ export default function Attendance({ profile, onUpdate }) {
           </label>
           <label>
             TIME
-            <input
-              type="time"
-              value={extraTime}
-              onChange={(e) => setExtraTime(e.target.value)}
-            />
+            <input type="time" value={extraTime} onChange={(e) => setExtraTime(e.target.value)} />
           </label>
           <Button onClick={addExtra}>Add extra class</Button>
         </div>
@@ -124,11 +115,11 @@ export default function Attendance({ profile, onUpdate }) {
           />
         </label>
         <span>
-          {new Date(date + "T00:00:00").toLocaleDateString("en-IN", {
-            weekday: "long",
-            day: "numeric",
-            month: "long",
-            year: "numeric",
+          {new Date(date + 'T00:00:00').toLocaleDateString('en-IN', {
+            weekday: 'long',
+            day: 'numeric',
+            month: 'long',
+            year: 'numeric',
           })}
         </span>
       </div>
@@ -139,14 +130,14 @@ export default function Attendance({ profile, onUpdate }) {
               <div className={styles.time}>{c.time}</div>
               <div className={styles.subject}>
                 <b>{subjectName(c.subjectId)}</b>
-                <small>{c.extra ? "EXTRA CLASS" : "TIMETABLE CLASS"}</small>
+                <small>{c.extra ? 'EXTRA CLASS' : 'TIMETABLE CLASS'}</small>
               </div>
               <div className={styles.status}>
-                {["Present", "Absent", "Cancelled"].map((s) => (
+                {['Present', 'Absent', 'Cancelled'].map((s) => (
                   <button
                     key={s}
                     onClick={() => mark(c.id, s)}
-                    className={`${records[key(c.id)] === s ? styles[s.toLowerCase()] : ""}`}
+                    className={`${records[key(c.id)] === s ? styles[s.toLowerCase()] : ''}`}
                   >
                     {s}
                   </button>
@@ -156,15 +147,13 @@ export default function Attendance({ profile, onUpdate }) {
           ))
         ) : (
           <div className={styles.empty}>
-            No classes are scheduled for this day. Add an extra class or choose
-            another date.
+            No classes are scheduled for this day. Add an extra class or choose another date.
           </div>
         )}
       </div>
       <p className={styles.notice}>
-        Attendance is currently saved in this browser for demonstration. The
-        backend must close each day and create absent records for any unmarked
-        scheduled class.
+        Attendance is currently saved in this browser for demonstration. The backend must close each
+        day and create absent records for any unmarked scheduled class.
       </p>
     </>
   );
