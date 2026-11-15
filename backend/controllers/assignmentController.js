@@ -12,6 +12,15 @@ const { toMysqlUtcDateTime, toIsoDateTime } = require("../utils/dateUtils");
 
 const validStatuses = ["pending", "completed"];
 const validPriorities = ["low", "medium", "high"];
+const validTypes = ["Exam", "Assignment", "Quiz", "Project", "Other"];
+
+function validateAssignmentType(value) {
+  if (!validTypes.includes(value)) {
+    throw new HttpError(400, "Type must be Exam, Assignment, Quiz, Project or Other.");
+  }
+
+  return value;
+}
 
 function validateAssignmentStatus(value) {
   if (!validStatuses.includes(value)) {
@@ -103,6 +112,10 @@ const createAssignment = asyncHandler(async (req, res) => {
     req.body.priority === undefined
       ? "medium"
       : validateAssignmentPriority(req.body.priority);
+  const type =
+    req.body.type === undefined
+      ? "Assignment"
+      : validateAssignmentType(req.body.type);
 
   const assignment = await assignmentModel.createAssignment(
     req.user.id,
@@ -112,6 +125,7 @@ const createAssignment = asyncHandler(async (req, res) => {
     dueAt,
     status,
     priority,
+    type,
   );
 
   if (!assignment) {
@@ -171,6 +185,7 @@ const updateAssignment = asyncHandler(async (req, res) => {
     req.body,
     "priority",
   );
+  const hasType = Object.prototype.hasOwnProperty.call(req.body, "type");
 
   if (
     !hasCourseId &&
@@ -178,7 +193,8 @@ const updateAssignment = asyncHandler(async (req, res) => {
     !hasDescription &&
     !hasDueAt &&
     !hasStatus &&
-    !hasPriority
+    !hasPriority &&
+    !hasType
   ) {
     throw new HttpError(
       400,
@@ -232,6 +248,9 @@ const updateAssignment = asyncHandler(async (req, res) => {
   const priority = hasPriority
     ? validateAssignmentPriority(req.body.priority)
     : currentAssignment.priority;
+  const type = hasType
+    ? validateAssignmentType(req.body.type)
+    : currentAssignment.type;
   const currentDueAt = toIsoDateTime(currentAssignment.due_at);
   const currentDueAtSql = toMysqlUtcDateTime(new Date(currentDueAt));
   const dueAtChanged = dueAt !== currentDueAtSql;
@@ -247,6 +266,7 @@ const updateAssignment = asyncHandler(async (req, res) => {
       dueAt,
       status,
       priority,
+      type,
     },
     dueAtChanged || reopened,
   );

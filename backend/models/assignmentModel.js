@@ -10,6 +10,7 @@ async function getAssignmentsByUser(userId, filters) {
     a.due_at,
     a.status,
     a.priority,
+    a.type,
     a.created_at,
     c.name AS course_name,
     c.code AS course_code
@@ -49,6 +50,7 @@ async function getAssignmentById(assignmentId, userId) {
       a.due_at,
       a.status,
       a.priority,
+      a.type,
       a.created_at,
       c.name AS course_name,
       c.code AS course_code
@@ -61,11 +63,11 @@ async function getAssignmentById(assignmentId, userId) {
   return rows[0] || null;
 }
 
-async function createAssignment(userId, courseId, title, description, dueAt, status, priority) {
+async function createAssignment(userId, courseId, title, description, dueAt, status, priority, type) {
   const [result] = await pool.execute(
-    `INSERT INTO assignments (user_id, course_id, title, description, due_at, status, priority)
-    SELECT ?, c.id, ?, ?, ?, ?, ? FROM courses c WHERE c.id = ? AND c.user_id = ?`,
-    [userId, title, description, dueAt, status, priority, courseId, userId]
+    `INSERT INTO assignments (user_id, course_id, title, description, due_at, status, priority, type)
+    SELECT ?, c.id, ?, ?, ?, ?, ?, ? FROM courses c WHERE c.id = ? AND c.user_id = ?`,
+    [userId, title, description, dueAt, status, priority, type, courseId, userId]
   );
 
   if (result.affectedRows === 0) {
@@ -83,7 +85,7 @@ async function updateAssignmentAndResetLogs(assignmentId, userId, values, resetR
 
     await connection.execute(
       `UPDATE assignments
-      SET course_id = ?, title = ?, description = ?, due_at = ?, status = ?, priority = ?
+      SET course_id = ?, title = ?, description = ?, due_at = ?, status = ?, priority = ?, type = ?
       WHERE id = ? AND user_id = ?`,
       [
         values.courseId,
@@ -92,6 +94,7 @@ async function updateAssignmentAndResetLogs(assignmentId, userId, values, resetR
         values.dueAt,
         values.status,
         values.priority,
+        values.type,
         assignmentId,
         userId
       ]

@@ -27,11 +27,16 @@ const createCourse = asyncHandler(async (req, res) => {
     );
   }
 
+  const credits = Object.prototype.hasOwnProperty.call(req.body, 'credits')
+    ? requireInteger(req.body.credits, 'credits', 1, 10)
+    : 3;
+
   const course = await courseModel.createCourse(
     req.user.id,
     name,
     code,
-    minimumAttendance
+    minimumAttendance,
+    credits
   );
 
   return sendSuccess(res, 201, 'Course created.', course);
@@ -59,8 +64,9 @@ const updateCourse = asyncHandler(async (req, res) => {
   const hasName = Object.prototype.hasOwnProperty.call(req.body, 'name');
   const hasCode = Object.prototype.hasOwnProperty.call(req.body, 'code');
   const hasMinimum = Object.prototype.hasOwnProperty.call(req.body, 'min_attendance_percent');
+  const hasCredits = Object.prototype.hasOwnProperty.call(req.body, 'credits');
 
-  if (!hasName && !hasCode && !hasMinimum) {
+  if (!hasName && !hasCode && !hasMinimum && !hasCredits) {
     throw new HttpError(400, 'Provide at least one course field to update.');
   }
 
@@ -73,13 +79,17 @@ const updateCourse = asyncHandler(async (req, res) => {
   const minimumAttendance = hasMinimum
     ? requireInteger(req.body.min_attendance_percent, 'min_attendance_percent', 1, 100)
     : currentCourse.min_attendance_percent;
+  const credits = hasCredits
+    ? requireInteger(req.body.credits, 'credits', 1, 10)
+    : currentCourse.credits;
 
   const course = await courseModel.updateCourse(
     courseId,
     req.user.id,
     name,
     code,
-    minimumAttendance
+    minimumAttendance,
+    credits
   );
 
   return sendSuccess(res, 200, 'Course updated.', course);

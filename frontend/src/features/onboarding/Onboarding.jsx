@@ -7,8 +7,17 @@ import styles from './Onboarding.module.css';
 export default function Onboarding({ profile, onComplete }) {
   const [step, setStep] = useState(0);
   const [semester, setSemester] = useState(profile.semester || 1);
-  const [subjects, setSubjects] = useState([{ name: '', code: '', credits: 3 }]);
-  const [timetable, setTimetable] = useState([]);
+  const [subjects, setSubjects] = useState(
+    profile.subjects?.length ? profile.subjects : [{ name: '', code: '', credits: 3 }]
+  );
+  const [timetable, setTimetable] = useState(() =>
+    (profile.timetable || []).map((t) => ({
+      ...t,
+      subjectId: profile.subjects.find((s) => s.id === t.subjectId)?.code || '',
+    }))
+  );
+  const [error, setError] = useState('');
+  const [busy, setBusy] = useState(false);
   const addSubject = () => setSubjects((s) => [...s, { name: '', code: '', credits: 3 }]);
   const updateSubject = (i, key, value) =>
     setSubjects((s) => s.map((x, n) => (n === i ? { ...x, [key]: value } : x)));
@@ -19,15 +28,18 @@ export default function Onboarding({ profile, onComplete }) {
     ]);
   const updateClass = (i, key, value) =>
     setTimetable((t) => t.map((x, n) => (n === i ? { ...x, [key]: value } : x)));
-  const finish = () =>
-    onComplete({
-      semester: Number(semester),
-      subjects: subjects
-        .filter((s) => s.name.trim())
-        .map((s, i) => ({ ...s, id: `sub-${Date.now()}-${i}`, credits: Number(s.credits) })),
-      timetable: timetable.map((x, i) => ({ ...x, id: `class-${Date.now()}-${i}` })),
-      history: profile.history || [],
-    });
+  const finish = async () => {
+    const named = subjects.filter((s) => s.name.trim());
+    if (!named.length || named.some((s) => !s.code?.trim())) {
+      setError('Add at least one subject, and give every subject a course code.');
+      return;
+    }
+    setBusy(true);
+    setError(
+      await onComplete({ semester: Number(semester), subjects: named, timetable })
+    );
+    setBusy(false);
+  };
   return (
     <div className={styles.page}>
       <div className={styles.wrap}>
@@ -127,6 +139,11 @@ export default function Onboarding({ profile, onComplete }) {
             </button>
           </section>
         )}
+        {error && (
+          <p role="alert" style={{ color: '#9a3026' }}>
+            {error}
+          </p>
+        )}
         <div className={styles.actions}>
           {step > 0 && (
             <Button variant="secondary" onClick={() => setStep((s) => s - 1)}>
@@ -136,7 +153,9 @@ export default function Onboarding({ profile, onComplete }) {
           {step < 2 ? (
             <Button onClick={() => setStep((s) => s + 1)}>Continue</Button>
           ) : (
-            <Button onClick={finish}>Open My Chronicle</Button>
+            <Button onClick={finish} disabled={busy}>
+              Open My Chronicle
+            </Button>
           )}
         </div>
       </div>

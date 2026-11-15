@@ -9,8 +9,8 @@ const {
 } = require('../utils/validators');
 
 function validateAttendanceStatus(value) {
-  if (value !== 'present' && value !== 'absent') {
-    throw new HttpError(400, 'Status must be present or absent.');
+  if (value !== 'present' && value !== 'absent' && value !== 'cancelled') {
+    throw new HttpError(400, 'Status must be present, absent or cancelled.');
   }
 
   return value;
@@ -25,6 +25,12 @@ const listCourseAttendance = asyncHandler(async (req, res) => {
   }
 
   const records = await attendanceModel.getAttendanceByCourse(courseId, req.user.id);
+  return sendSuccess(res, 200, 'Attendance records loaded.', records);
+});
+
+const listAttendanceByDate = asyncHandler(async (req, res) => {
+  const classDate = requireDate(req.query.date, 'date');
+  const records = await attendanceModel.getAttendanceByDate(req.user.id, classDate);
   return sendSuccess(res, 200, 'Attendance records loaded.', records);
 });
 
@@ -113,6 +119,7 @@ const getAttendanceSummary = asyncHandler(async (req, res) => {
       total_classes: totalClasses,
       attended,
       percentage,
+      cancelled: Number(row.cancelled),
       min_attendance_percent: minimumAttendance,
       is_safe: isSafe
     };
@@ -144,6 +151,7 @@ const getAttendanceSummary = asyncHandler(async (req, res) => {
 
 module.exports = {
   listCourseAttendance,
+  listAttendanceByDate,
   createCourseAttendance,
   updateAttendance,
   deleteAttendance,

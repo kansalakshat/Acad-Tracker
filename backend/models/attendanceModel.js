@@ -9,6 +9,15 @@ async function getAttendanceByCourse(courseId, userId) {
   return rows;
 }
 
+async function getAttendanceByDate(userId, classDate) {
+  const [rows] = await pool.execute(
+    'SELECT id, user_id, course_id, class_date, status, created_at FROM attendance_records WHERE user_id = ? AND class_date = ?',
+    [userId, classDate]
+  );
+
+  return rows;
+}
+
 async function createAttendance(userId, courseId, classDate, status) {
   const [result] = await pool.execute(
     `INSERT INTO attendance_records (user_id, course_id, class_date, status)
@@ -62,8 +71,9 @@ async function getAttendanceSummaryRows(userId) {
       c.name,
       c.code,
       c.min_attendance_percent,
-      COUNT(a.id) AS total_classes,
-      COALESCE(SUM(CASE WHEN a.status = 'present' THEN 1 ELSE 0 END), 0) AS attended
+      COALESCE(SUM(CASE WHEN a.status IN ('present', 'absent') THEN 1 ELSE 0 END), 0) AS total_classes,
+      COALESCE(SUM(CASE WHEN a.status = 'present' THEN 1 ELSE 0 END), 0) AS attended,
+      COALESCE(SUM(CASE WHEN a.status = 'cancelled' THEN 1 ELSE 0 END), 0) AS cancelled
     FROM courses c
     LEFT JOIN attendance_records a
       ON a.course_id = c.id AND a.user_id = ?
@@ -78,6 +88,7 @@ async function getAttendanceSummaryRows(userId) {
 
 module.exports = {
   getAttendanceByCourse,
+  getAttendanceByDate,
   createAttendance,
   getAttendanceById,
   updateAttendance,

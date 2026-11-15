@@ -3,6 +3,7 @@ CREATE TABLE users (
   name VARCHAR(100) NOT NULL,
   email VARCHAR(255) NOT NULL UNIQUE,
   password_hash VARCHAR(255) NOT NULL,
+  semester INT NOT NULL DEFAULT 1,
   created_at TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP
 );
 
@@ -12,6 +13,7 @@ CREATE TABLE courses (
   name VARCHAR(150) NOT NULL,
   code VARCHAR(30) NOT NULL,
   min_attendance_percent INT NOT NULL DEFAULT 75,
+  credits INT NOT NULL DEFAULT 3,
   created_at TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
   FOREIGN KEY (user_id) REFERENCES users(id) ON DELETE CASCADE,
   INDEX idx_courses_user (user_id)
@@ -22,12 +24,23 @@ CREATE TABLE attendance_records (
   user_id INT NOT NULL,
   course_id INT NOT NULL,
   class_date DATE NOT NULL,
-  status ENUM('present','absent') NOT NULL,
+  status ENUM('present','absent','cancelled') NOT NULL,
   created_at TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
   FOREIGN KEY (user_id) REFERENCES users(id) ON DELETE CASCADE,
   FOREIGN KEY (course_id) REFERENCES courses(id) ON DELETE CASCADE,
   UNIQUE KEY uq_course_date (course_id, class_date),
-  INDEX idx_attendance_user (user_id)
+  INDEX idx_attendance_user_date (user_id, class_date)
+);
+
+CREATE TABLE timetable_slots (
+  id INT AUTO_INCREMENT PRIMARY KEY,
+  user_id INT NOT NULL,
+  course_id INT NOT NULL,
+  weekday ENUM('Monday','Tuesday','Wednesday','Thursday','Friday','Saturday','Sunday') NOT NULL,
+  start_time TIME NOT NULL,
+  FOREIGN KEY (user_id) REFERENCES users(id) ON DELETE CASCADE,
+  FOREIGN KEY (course_id) REFERENCES courses(id) ON DELETE CASCADE,
+  INDEX idx_timetable_user (user_id)
 );
 
 CREATE TABLE assignments (
@@ -39,6 +52,7 @@ CREATE TABLE assignments (
   due_at DATETIME NOT NULL,
   status ENUM('pending','completed') NOT NULL DEFAULT 'pending',
   priority ENUM('low','medium','high') NOT NULL DEFAULT 'medium',
+  type ENUM('Exam','Assignment','Quiz','Project','Other') NOT NULL DEFAULT 'Assignment',
   created_at TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
   FOREIGN KEY (user_id) REFERENCES users(id) ON DELETE CASCADE,
   FOREIGN KEY (course_id) REFERENCES courses(id) ON DELETE CASCADE,

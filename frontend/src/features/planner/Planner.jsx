@@ -1,7 +1,8 @@
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 import PageHeading from '../../components/PageHeading';
 import Field from '../../components/Field';
 import Button from '../../components/Button';
+import { api, capitalize, toEvent } from '../../api';
 import styles from './Planner.module.css';
 
 const blank = {
@@ -14,8 +15,11 @@ const blank = {
 const today = () => new Date().toLocaleDateString('en-CA');
 
 export default function Planner({ profile, onUpdate }) {
-  const [form, setForm] = useState(blank);
+  const [form, setForm] = useState(() => ({ ...blank, subject: profile.subjects?.[0]?.id || '' }));
   const [show, setShow] = useState(false);
+  const [error, setError] = useState('');
+  // Selected subject's attendance: { 'YYYY-MM-DD': 'present' | 'absent' | 'cancelled' }
+  const [byDate, setByDate] = useState({});
 
   const [view, setView] = useState('events');
   const [selectedSubject, setSelectedSubject] = useState(profile.subjects?.[0]?.id || '');
@@ -29,26 +33,46 @@ export default function Planner({ profile, onUpdate }) {
 
   const events = [...(profile.events || [])].sort((a, b) => a.date.localeCompare(b.date));
 
-  const attendance = profile.attendance || {};
   const timetable = profile.timetable || [];
 
-  const save = (e) => {
+  useEffect(() => {
+    if (view !== 'attendance' || !selectedSubject) return;
+    api(`/courses/${selectedSubject}/attendance`)
+      .then((rows) => setByDate(Object.fromEntries(rows.map((r) => [r.class_date, r.status]))))
+      .catch((e) => setError(e.message));
+  }, [view, selectedSubject]);
+
+  const save = async (e) => {
     e.preventDefault();
 
-    if (!form.title || !form.date) return;
+    if (!form.title || !form.date || !form.subject) return;
 
-    onUpdate({
-      events: [...(profile.events || []), { ...form, id: `event-${Date.now()}` }],
-    });
-
-    setForm(blank);
-    setShow(false);
+    try {
+      const created = await api('/assignments', {
+        method: 'POST',
+        body: {
+          course_id: Number(form.subject),
+          title: form.title,
+          type: form.type,
+          due_at: new Date(`${form.date}T23:59:00`).toISOString(),
+        },
+      });
+      onUpdate({ events: [...(profile.events || []), toEvent(created)] });
+      setForm({ ...blank, subject: form.subject });
+      setShow(false);
+      setError('');
+    } catch (err) {
+      setError(err.message);
+    }
   };
 
-  const remove = (id) => {
-    onUpdate({
-      events: (profile.events || []).filter((e) => e.id !== id),
-    });
+  const remove = async (id) => {
+    try {
+      await api(`/assignments/${id}`, { method: 'DELETE' });
+      onUpdate({ events: (profile.events || []).filter((e) => e.id !== id) });
+    } catch (err) {
+      setError(err.message);
+    }
   };
 
   const previousMonth = () => {
@@ -66,25 +90,7 @@ export default function Planner({ profile, onUpdate }) {
     return `${y}-${m}-${d}`;
   };
 
-  const getAttendanceStatus = (date) => {
-    const weekday = new Date(date + 'T00:00:00').toLocaleDateString('en-US', {
-      weekday: 'long',
-    });
-
-    const classes = timetable.filter((t) => t.day === weekday && t.subjectId === selectedSubject);
-
-    if (!classes.length) return '';
-
-    const statuses = classes.map((c) => attendance[`${date}_${c.id}`]);
-
-    if (statuses.every((s) => s === 'Cancelled')) return 'cancelled';
-
-    if (statuses.includes('Absent')) return 'absent';
-
-    if (statuses.includes('Present')) return 'present';
-
-    return '';
-  };
+  const getAttendanceStatus = (date) => byDate[date] || '';
 
   const getClassesForDate = (date) => {
     const weekday = new Date(date + 'T00:00:00').toLocaleDateString('en-US', {
@@ -128,7 +134,10 @@ export default function Planner({ profile, onUpdate }) {
         {view === 'attendance' && (
           <label className={styles.select}>
             SELECT SUBJECT
-            <select value={selectedSubject} onChange={(e) => setSelectedSubject(e.target.value)}>
+            <select
+              value={selectedSubject}
+              onChange={(e) => setSelectedSubject(Number(e.target.value))}
+            >
               {(profile.subjects || []).map((s) => (
                 <option value={s.id} key={s.id}>
                   {s.name}
@@ -199,10 +208,8 @@ export default function Planner({ profile, onUpdate }) {
                 })
               }
             >
-              <option value="">General</option>
-
               {(profile.subjects || []).map((s) => (
-                <option key={s.id} value={s.name}>
+                <option key={s.id} value={s.id}>
                   {s.name}
                 </option>
               ))}
@@ -211,6 +218,12 @@ export default function Planner({ profile, onUpdate }) {
 
           <Button type="submit">Save to calendar</Button>
         </form>
+      )}
+
+      {error && (
+        <p role="alert" style={{ color: '#9a3026' }}>
+          {error}
+        </p>
       )}
 
       {view === 'events' ? (
@@ -322,7 +335,7 @@ export default function Planner({ profile, onUpdate }) {
 
             {selectedClasses.length ? (
               selectedClasses.map((c) => {
-                const status = attendance[`${selectedDate}_${c.id}`];
+                const status = byDate[selectedDate] && capitalize(byDate[selectedDate]);
 
                 return (
                   <div className={styles.classRecord} key={c.id}>

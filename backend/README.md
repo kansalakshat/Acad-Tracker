@@ -20,6 +20,12 @@ Express and MySQL REST API for the Academic Helper React frontend.
 8. Add the VAPID public key used by the worker to `VAPID_PUBLIC_KEY`.
 9. Run `npm run dev` for development or `npm start` to start the server.
 
+Already created the database from an older `schema.sql`? Run `sql/migrate_001_frontend_fields.sql` once instead of re-running the schema.
+
+To check every endpoint the frontend uses, start the API and run `node smoke-test.js`.
+
+Run the reminder worker separately with `npm run worker`.
+
 The API listens on port 4000 by default. The health endpoint is `GET http://localhost:4000/api/health`.
 
 ## Authentication

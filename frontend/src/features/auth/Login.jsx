@@ -8,16 +8,12 @@ export default function Login({ onLogin, onSignup, onForgot }) {
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [error, setError] = useState('');
-  const submit = (e) => {
+  const [busy, setBusy] = useState(false);
+  const submit = async (e) => {
     e.preventDefault();
-    const message = onLogin({
-      email,
-      password,
-      name: email
-        .split('@')[0]
-        .replace(/[._]/g, ' ')
-        .replace(/\b\w/g, (c) => c.toUpperCase()),
-    });
+    setBusy(true);
+    const message = await onLogin({ email, password });
+    setBusy(false);
     setError(message);
   };
   return (
@@ -45,7 +41,9 @@ export default function Login({ onLogin, onSignup, onForgot }) {
           </button>
         </div>
         {error && <p className={styles.error}>{error}</p>}
-        <Button type="submit">Enter the Hall</Button>
+        <Button type="submit" disabled={busy}>
+          Enter the Hall
+        </Button>
       </form>
       <div className={styles.switch}>
         New to Academia?{' '}

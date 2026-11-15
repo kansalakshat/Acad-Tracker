@@ -6,6 +6,7 @@ const createToken = require('../utils/tokenUtils');
 const asyncHandler = require('../utils/asyncHandler');
 const {
   requireText,
+  requireInteger,
   requireEmail,
   requirePassword
 } = require('../utils/validators');
@@ -55,6 +56,7 @@ const login = asyncHandler(async (req, res) => {
     id: userWithPassword.id,
     name: userWithPassword.name,
     email: userWithPassword.email,
+    semester: userWithPassword.semester,
     created_at: userWithPassword.created_at
   };
 
@@ -77,19 +79,24 @@ const getCurrentUser = asyncHandler(async (req, res) => {
 });
 
 const updateCurrentUser = asyncHandler(async (req, res) => {
-  const allowedFields = ['name'];
-  const hasAllowedField = allowedFields.some((field) => Object.prototype.hasOwnProperty.call(req.body, field));
+  const hasName = Object.prototype.hasOwnProperty.call(req.body, 'name');
+  const hasSemester = Object.prototype.hasOwnProperty.call(req.body, 'semester');
 
-  if (!hasAllowedField) {
-    throw new HttpError(400, 'Provide a name to update.');
+  if (!hasName && !hasSemester) {
+    throw new HttpError(400, 'Provide a name or semester to update.');
   }
 
-  const name = requireText(req.body.name, 'Name', 100);
-  const user = await userModel.updateUserName(req.user.id, name);
+  const current = await userModel.findPublicUserById(req.user.id);
 
-  if (!user) {
+  if (!current) {
     throw new HttpError(404, 'User not found.');
   }
+
+  const name = hasName ? requireText(req.body.name, 'Name', 100) : current.name;
+  const semester = hasSemester
+    ? requireInteger(req.body.semester, 'semester', 1, 12)
+    : current.semester;
+  const user = await userModel.updateUser(req.user.id, name, semester);
 
   return sendSuccess(res, 200, 'Account details updated.', user);
 });

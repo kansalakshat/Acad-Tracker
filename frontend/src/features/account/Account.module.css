@@ -37,7 +37,7 @@
 }
 .subject {
   display: grid;
-  grid-template-columns: 1fr 75px 25px;
+  grid-template-columns: 1fr 90px 75px 25px;
   gap: 8px;
   padding: 8px 0;
   border-bottom: 1px solid #d4c2a2;

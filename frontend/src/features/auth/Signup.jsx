@@ -9,7 +9,8 @@ export default function Signup({ onBack, onCreate }) {
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [error, setError] = useState('');
-  const submit = (e) => {
+  const [busy, setBusy] = useState(false);
+  const submit = async (e) => {
     e.preventDefault();
     if (!email.toLowerCase().endsWith('@iitbhilai.ac.in')) {
       setError('Registration is restricted to @iitbhilai.ac.in addresses.');
@@ -19,7 +20,10 @@ export default function Signup({ onBack, onCreate }) {
       setError('Use a password with at least 8 characters.');
       return;
     }
-    setError(onCreate({ name, email, password }));
+    setBusy(true);
+    const message = await onCreate({ name, email, password });
+    setBusy(false);
+    setError(message);
   };
   return (
     <AuthFrame title="Join the Chronicle" subtitle="A place for every scholar">
@@ -48,7 +52,9 @@ export default function Signup({ onBack, onCreate }) {
           required
         />
         {error && <p className={styles.error}>{error}</p>}
-        <Button type="submit">Create Account</Button>
+        <Button type="submit" disabled={busy}>
+          Create Account
+        </Button>
       </form>
       <div className={styles.switch}>
         Already registered?{' '}

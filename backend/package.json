@@ -1,13 +1,12 @@
-
 {
   "name": "academic-helper",
   "version": "1.0.0",
   "private": true,
   "description": "Academic Helper backend API and notification worker",
   "scripts": {
-    "start:backend": "node backend/server.js",
-    "dev:backend": "node --watch backend/server.js",
-    "start:worker": "node backend/src/index.js"
+    "start": "node server.js",
+    "dev": "node --watch server.js",
+    "worker": "node src/index.js"
   },
   "engines": {
     "node": ">=18"

@@ -2,7 +2,7 @@ const pool = require('../config/db');
 
 async function findUserByEmail(email) {
   const [rows] = await pool.execute(
-    'SELECT id, name, email, password_hash, created_at FROM users WHERE email = ?',
+    'SELECT id, name, email, semester, password_hash, created_at FROM users WHERE email = ?',
     [email]
   );
 
@@ -11,7 +11,7 @@ async function findUserByEmail(email) {
 
 async function findPublicUserById(userId) {
   const [rows] = await pool.execute(
-    'SELECT id, name, email, created_at FROM users WHERE id = ?',
+    'SELECT id, name, email, semester, created_at FROM users WHERE id = ?',
     [userId]
   );
 
@@ -35,7 +35,7 @@ async function createUserWithPreferences(name, email, passwordHash) {
     );
 
     const [rows] = await connection.execute(
-      'SELECT id, name, email, created_at FROM users WHERE id = ?',
+      'SELECT id, name, email, semester, created_at FROM users WHERE id = ?',
       [userResult.insertId]
     );
 
@@ -49,10 +49,10 @@ async function createUserWithPreferences(name, email, passwordHash) {
   }
 }
 
-async function updateUserName(userId, name) {
+async function updateUser(userId, name, semester) {
   const [result] = await pool.execute(
-    'UPDATE users SET name = ? WHERE id = ?',
-    [name, userId]
+    'UPDATE users SET name = ?, semester = ? WHERE id = ?',
+    [name, semester, userId]
   );
 
   if (result.affectedRows === 0) {
@@ -66,5 +66,5 @@ module.exports = {
   findUserByEmail,
   findPublicUserById,
   createUserWithPreferences,
-  updateUserName
+  updateUser
 };

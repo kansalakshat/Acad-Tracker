@@ -1,6 +1,7 @@
-import { useMemo, useState } from 'react';
+import { useCallback, useEffect, useState } from 'react';
 import PageHeading from '../../components/PageHeading';
 import Button from '../../components/Button';
+import { api, capitalize } from '../../api';
 import styles from './Attendance.module.css';
 
 const today = () => {
@@ -11,51 +12,85 @@ const today = () => {
 
   return `${year}-${month}-${day}`;
 };
-export default function Attendance({ profile, onUpdate }) {
+export default function Attendance({ profile }) {
   const [date, setDate] = useState(today());
-  const [records, setRecords] = useState(profile.attendance || {});
+  // One record per subject per date on the server: { [courseId]: { id, status } }
+  const [records, setRecords] = useState({});
+  const [counts, setCounts] = useState({ present: 0, absent: 0, cancelled: 0 });
+  const [extras, setExtras] = useState([]);
+  const [error, setError] = useState('');
   const [extra, setExtra] = useState(false);
   const [extraSubject, setExtraSubject] = useState(profile.subjects?.[0]?.id || '');
   const [extraTime, setExtraTime] = useState('16:00');
-  const classes = (profile.timetable || []).filter(
-    (t) =>
-      t.day ===
-      new Date(date + 'T00:00:00').toLocaleDateString('en-US', {
-        weekday: 'long',
-      })
+  const weekday = new Date(date + 'T00:00:00').toLocaleDateString('en-US', { weekday: 'long' });
+  const scheduled = (profile.timetable || []).filter((t) => t.day === weekday);
+  const scheduledIds = new Set(scheduled.map((t) => t.subjectId));
+  const extraIds = new Set([
+    ...extras.map((x) => x.subjectId),
+    ...Object.keys(records).map(Number),
+  ]);
+  const classes = [
+    ...scheduled,
+    ...[...extraIds]
+      .filter((id) => !scheduledIds.has(id))
+      .map((id) => ({
+        id: `extra-${id}`,
+        subjectId: id,
+        time: extras.find((x) => x.subjectId === id)?.time || '—',
+        extra: true,
+      })),
+  ];
+  const subjectName = (id) => profile.subjects?.find((s) => s.id === id)?.name || 'Subject';
+
+  const loadSummary = useCallback(
+    () =>
+      api('/attendance/summary').then((rows) =>
+        setCounts({
+          present: rows.reduce((n, r) => n + r.attended, 0),
+          absent: rows.reduce((n, r) => n + r.total_classes - r.attended, 0),
+          cancelled: rows.reduce((n, r) => n + r.cancelled, 0),
+        })
+      ),
+    []
   );
-  const subjectName = (id) =>
-    profile.subjects?.find((s) => s.id === id)?.name ||
-    profile.subjects?.find((s) => s.code === id)?.name ||
-    'Subject';
-  const key = (id) => `${date}_${id}`;
-  const mark = (id, status) => {
-    const next = { ...records, [key(id)]: status };
-    setRecords(next);
-    onUpdate({ attendance: next });
+
+  useEffect(() => {
+    setError('');
+    setExtras([]);
+    api(`/attendance?date=${date}`)
+      .then((rows) =>
+        setRecords(
+          Object.fromEntries(rows.map((r) => [r.course_id, { id: r.id, status: capitalize(r.status) }]))
+        )
+      )
+      .catch((e) => setError(e.message));
+  }, [date]);
+
+  useEffect(() => {
+    loadSummary().catch((e) => setError(e.message));
+  }, [loadSummary]);
+
+  const mark = async (courseId, status) => {
+    const existing = records[courseId];
+    const body = { status: status.toLowerCase() };
+    try {
+      const saved = existing
+        ? await api(`/attendance/${existing.id}`, { method: 'PUT', body })
+        : await api(`/courses/${courseId}/attendance`, {
+            method: 'POST',
+            body: { ...body, class_date: date },
+          });
+      setRecords((r) => ({ ...r, [courseId]: { id: saved.id, status } }));
+      setError('');
+      await loadSummary();
+    } catch (e) {
+      setError(e.message);
+    }
   };
   const addExtra = () => {
-    const item = {
-      id: `extra-${Date.now()}`,
-      subjectId: extraSubject,
-      day: new Date(date + 'T00:00:00').toLocaleDateString('en-US', {
-        weekday: 'long',
-      }),
-      time: extraTime,
-      extra: true,
-    };
-    const next = [...(profile.timetable || []), item];
-    onUpdate({ timetable: next });
+    setExtras((x) => [...x, { subjectId: Number(extraSubject), time: extraTime }]);
     setExtra(false);
   };
-  const counts = useMemo(() => {
-    const vals = Object.values(records);
-    return {
-      present: vals.filter((v) => v === 'Present').length,
-      absent: vals.filter((v) => v === 'Absent').length,
-      cancelled: vals.filter((v) => v === 'Cancelled').length,
-    };
-  }, [records]);
   return (
     <>
       <PageHeading
@@ -136,8 +171,8 @@ export default function Attendance({ profile, onUpdate }) {
                 {['Present', 'Absent', 'Cancelled'].map((s) => (
                   <button
                     key={s}
-                    onClick={() => mark(c.id, s)}
-                    className={`${records[key(c.id)] === s ? styles[s.toLowerCase()] : ''}`}
+                    onClick={() => mark(c.subjectId, s)}
+                    className={`${records[c.subjectId]?.status === s ? styles[s.toLowerCase()] : ''}`}
                   >
                     {s}
                   </button>
@@ -151,10 +186,11 @@ export default function Attendance({ profile, onUpdate }) {
           </div>
         )}
       </div>
-      <p className={styles.notice}>
-        Attendance is currently saved in this browser for demonstration. The backend must close each
-        day and create absent records for any unmarked scheduled class.
-      </p>
+      {error && (
+        <p className={styles.notice} role="alert" style={{ color: '#9a3026' }}>
+          {error}
+        </p>
+      )}
     </>
   );
 }
