@@ -1,4 +1,10 @@
+const fs = require('fs');
+const path = require('path');
 const mysql = require('mysql2/promise');
+
+// CA from env (Vercel) or local ca.pem (dev).
+const caFile = path.join(__dirname, '..', 'ca.pem');
+const ca = process.env.DB_SSL_CA || (fs.existsSync(caFile) ? fs.readFileSync(caFile, 'utf8') : undefined);
 
 const pool = mysql.createPool({
   host: process.env.DB_HOST,
@@ -9,7 +15,7 @@ const pool = mysql.createPool({
   waitForConnections: true,
   connectionLimit: Number(process.env.DB_CONNECTION_LIMIT || 10),
   ssl: process.env.DB_SSL === 'true'
-    ? { minVersion: 'TLSv1.2', rejectUnauthorized: true, ...(process.env.DB_SSL_CA && { ca: process.env.DB_SSL_CA }) }
+    ? { minVersion: 'TLSv1.2', rejectUnauthorized: true, ...(ca && { ca }) }
     : undefined,
   queueLimit: 0,
   timezone: 'Z',
