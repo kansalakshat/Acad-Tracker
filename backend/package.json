@@ -1,16 +1,23 @@
+
 {
-  "name": "academic-helper-worker",
+  "name": "academic-helper",
   "version": "1.0.0",
-  "description": "Background worker that sends assignment reminders for Academic Helper",
-  "main": "src/index.js",
+  "private": true,
+  "description": "Academic Helper backend API and notification worker",
   "scripts": {
-    "start": "node src/index.js"
+    "start:backend": "node backend/server.js",
+    "dev:backend": "node --watch backend/server.js",
+    "start:worker": "node backend/src/index.js"
   },
   "engines": {
     "node": ">=18"
   },
   "dependencies": {
+    "bcrypt": "^6.0.0",
+    "cors": "^2.8.5",
     "dotenv": "^18.0.10",
+    "express": "^4.21.2",
+    "jsonwebtoken": "^9.0.2",
     "mysql2": "^3.24.6",
     "node-cron": "^3.0.3",
     "nodemailer": "^10.5.0",
