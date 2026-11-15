@@ -9,10 +9,18 @@ const timetableRoutes = require('./routes/timetableRoutes');
 const { notFound, errorHandler } = require('./middleware/errorMiddleware');
 
 const app = express();
-const clientOrigin = process.env.CLIENT_ORIGIN || 'http://localhost:5173';
+// Comma-separated list, e.g. "https://acad-tracker-h92h.vercel.app,http://localhost:5173"
+const clientOrigins = (process.env.CLIENT_ORIGIN || 'http://localhost:5173')
+  .split(',')
+  .map((origin) => origin.trim());
+
+// On Vercel every request arrives through its proxy; trust it so req.ip is the real client.
+if (process.env.VERCEL) {
+  app.set('trust proxy', 1);
+}
 
 app.use(cors({
-  origin: clientOrigin,
+  origin: clientOrigins,
   methods: ['GET', 'POST', 'PUT', 'PATCH', 'DELETE', 'OPTIONS'],
   allowedHeaders: ['Content-Type', 'Authorization'],
   credentials: true

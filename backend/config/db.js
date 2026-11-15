@@ -7,7 +7,10 @@ const pool = mysql.createPool({
   password: process.env.DB_PASSWORD,
   database: process.env.DB_NAME,
   waitForConnections: true,
-  connectionLimit: 10,
+  connectionLimit: Number(process.env.DB_CONNECTION_LIMIT || 10),
+  ssl: process.env.DB_SSL === 'true'
+    ? { minVersion: 'TLSv1.2', rejectUnauthorized: true, ...(process.env.DB_SSL_CA && { ca: process.env.DB_SSL_CA }) }
+    : undefined,
   queueLimit: 0,
   timezone: 'Z',
   dateStrings: ['DATE']

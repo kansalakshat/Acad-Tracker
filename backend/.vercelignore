@@ -1,0 +1,13 @@
+# Upload only what the API needs. Never .env or ca.pem.
+/*
+!api
+!app.js
+!config
+!controllers
+!middleware
+!models
+!routes
+!utils
+!package.json
+!package-lock.json
+!vercel.json

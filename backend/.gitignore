@@ -4,3 +4,7 @@ npm-debug.log*
 .DS_Store
 services/notificationService.js
 services/pushNotificationService.js
+.env.*
+!.env.example
+ca.pem
+.vercel
