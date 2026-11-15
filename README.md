@@ -12,9 +12,12 @@ More screenshots in [`docs/screenshots`](docs/screenshots).
 
 ## Team
 
-**Roll numbers:** B25CS003, B25CS005, B25CS016, B25CS017
-
-**GitHub contributors:** [kansalakshat](https://github.com/kansalakshat), [Divvyansh02](https://github.com/Divvyansh02), [Farukh075](https://github.com/Farukh075), [Sohamnotavailable](https://github.com/Sohamnotavailable)
+| Roll No. | Name | GitHub |
+|----------|------|--------|
+| B25CS003 | Soham | [Sohamnotavailable](https://github.com/Sohamnotavailable) |
+| B25CS005 | Akshat | [kansalakshat](https://github.com/kansalakshat) |
+| B25CS016 | Divyansh | [Divvyansh02](https://github.com/Divvyansh02) |
+| B25CS017 | Farukh | [Farukh075](https://github.com/Farukh075) |
 
 ## Features
 
