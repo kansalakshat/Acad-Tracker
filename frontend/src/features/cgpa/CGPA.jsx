@@ -143,7 +143,7 @@ export default function CGPA({ subjects }) {
         </aside>
       </div>
       <div className={styles.note}>
-        GRADE SCALE <span>A+ 10 · A 10 · A− 9 · B 8 · B− 7 · C 6 · C− 7 · F excluded</span>
+        GRADE SCALE <span>A+ 10 · A 10 · A− 9 · B 8 · B− 7 · C 6 · C− 5 · F excluded</span>
       </div>
     </>
   );
